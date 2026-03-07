@@ -25,8 +25,13 @@
         <div id="sys-info">System-Status: lade...</div>
         
         <div id="current">Lade Titel...</div>
-        <audio id="player" src="/live-stream" controls style="width:100%; margin-bottom: 15px;"></audio>
+        <div class="song-info">
+    	<p>Aktueller Titel: <span id="song-title" style="font-weight: bold;">Lädt...</span></p>
+	</div>
+
+	<audio id="player" src="/live-stream" controls style="width:100%; margin-bottom: 15px;"></audio>
         
+	
         <div style="display: flex; justify-content: space-between;">
             <button class="btn-green" onclick="document.getElementById('player').play()">Radio Start</button>
             <button class="btn-red" onclick="skip()">Song Skip</button>
@@ -103,5 +108,33 @@
         updateSysStatus();
         loadPlaylist();
     </script>
+
+	
+	<script>
+    function updateSongTitle() {
+        fetch('/api/current-song')
+            .then(response => {
+                if (!response.ok) throw new Error('Netzwerk-Fehler');
+                return response.text();
+            })
+            .then(title => {
+                const element = document.getElementById('song-title');
+                // Nur aktualisieren, wenn sich der Titel geändert hat (schont das Auge)
+                if (element.innerText !== title) {
+                    element.innerText = title;
+                    console.log("Neuer Song: " + title);
+                }
+            })
+            .catch(err => console.error("Titel-Update fehlgeschlagen:", err));
+    }
+
+    // Sofort beim Laden einmal prüfen
+    updateSongTitle();
+    // Danach alle 5 Sekunden wiederholen
+    setInterval(updateSongTitle, 5000);
+</script>
+
+
+
 </body>
 </html>

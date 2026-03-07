@@ -87,6 +87,21 @@ int main() {
         }
     });
 
+
+// Gibt den aktuellen Songnamen als Text zurück
+svr.Get("/api/current-song", [](const httplib::Request &, httplib::Response &res) {
+    std::ifstream file("/opt/musik_konverter/radio/current_song.txt");
+    std::string song;
+    if (file && std::getline(file, song)) {
+        res.set_header("Access-Control-Allow-Origin", "*"); // Erlaubt Zugriff von der Webseite
+        res.set_content(song, "text/plain; charset=utf-8");
+    } else {
+        res.set_content("Warte auf Song...", "text/plain; charset=utf-8");
+    }
+});
+
+
+
     std::cout << "JensHub v3 (System-Monitor) läuft auf Port 5001" << std::endl;
     svr.listen("0.0.0.0", 5001);
     return 0;
