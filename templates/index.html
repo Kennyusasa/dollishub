@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Jens Hub Ultimate Control</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; text-align: center; padding: 20px; }
+        .box { max-width: 550px; margin: auto; background: #1e1e1e; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; }
+        h2, h3 { color: #1db954; margin-top: 0; }
+        #sys-info { font-size: 0.8em; color: #888; background: #000; padding: 8px; border-radius: 5px; margin-bottom: 20px; font-family: monospace; }
+        input, select { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #333; color: white; }
+        button { padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-green { background: #1db954; color: white; width: 48%; }
+        .btn-red { background: #e91e63; color: white; width: 48%; }
+        .btn-blue { background: #2196f3; color: white; width: 95%; margin-top: 10px; }
+        #playlist { text-align: left; background: #000; padding: 15px; height: 160px; overflow-y: auto; font-family: monospace; font-size: 0.85em; margin-top: 15px; border-radius: 5px; border: 1px solid #444; }
+        #current { font-size: 1.1em; margin: 15px 0; color: #1db954; min-height: 1.2em; font-weight: bold; }
+        #status { font-size: 0.85em; color: #aaa; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Jens Radio Hub</h2>
+        
+        <div id="sys-info">System-Status: lade...</div>
+        
+        <div id="current">Lade Titel...</div>
+        <audio id="player" src="/live-stream" controls style="width:100%; margin-bottom: 15px;"></audio>
+        
+        <div style="display: flex; justify-content: space-between;">
+            <button class="btn-green" onclick="document.getElementById('player').play()">Radio Start</button>
+            <button class="btn-red" onclick="skip()">Song Skip</button>
+        </div>
+
+        <hr style="border:0; border-top:1px solid #333; margin:25px 0;">
+
+        <h3>YouTube Konverter</h3>
+        <input type="text" id="url" placeholder="YouTube Link einfügen...">
+        <select id="format">
+            <option value="mp3">Audio: MP3</option>
+            <option value="flac">Audio: FLAC (HQ)</option>
+            <option value="mp4">Video: MP4</option>
+            <option value="mkv">Video: MKV</option>
+        </select>
+        <button class="btn-blue" onclick="convert()">Download & Radio hinzufügen</button>
+        <div id="status">Bereit.</div>
+
+        <h3>Server Playlist</h3>
+        <div id="playlist">Ordner wird gescannt...</div>
+        <button onclick="loadPlaylist()" style="background:#444; color:white; font-size:0.75em; margin-top:10px;">Liste aktualisieren</button>
+    </div>
+
+    <script>
+        function updateTitle() {
+            fetch('/current-song').then(r => r.text()).then(t => { document.getElementById('current').innerText = t; });
+        }
+
+        function updateSysStatus() {
+            fetch('/sys-status').then(r => r.text()).then(t => { document.getElementById('sys-info').innerText = t; });
+        }
+
+        function loadPlaylist() {
+            fetch('/list-files').then(r => r.text()).then(t => {
+                const files = t.split('\n').filter(f => f.trim() !== "");
+                document.getElementById('playlist').innerHTML = files.join('<br>') || "Keine Dateien.";
+            });
+        }
+
+        function skip() {
+            const p = document.getElementById('player');
+            document.getElementById('status').innerText = "Skipping... bitte warten.";
+            fetch('/skip-song').then(() => {
+                setTimeout(() => {
+                    p.src = "/live-stream?v=" + Date.now();
+                    p.load();
+                    p.play().then(() => {
+                        document.getElementById('status').innerText = "Nächstes Lied läuft!";
+                        updateTitle();
+                    });
+                }, 3000);
+            });
+        }
+
+        function convert() {
+            const url = document.getElementById('url').value;
+            const fmt = document.getElementById('format').value;
+            if(!url) return alert("Link fehlt!");
+            const params = new URLSearchParams();
+            params.append('url', url);
+            params.append('format', fmt);
+            
+            document.getElementById('status').innerText = "Download (" + fmt + ") gestartet...";
+            fetch('/convert', {method:'POST', body:params}).then(r => r.text()).then(m => {
+                document.getElementById('status').innerText = m;
+                document.getElementById('url').value = "";
+                setTimeout(loadPlaylist, 5000);
+            });
+        }
+
+        setInterval(updateTitle, 5000);
+        setInterval(updateSysStatus, 10000);
+        updateTitle();
+        updateSysStatus();
+        loadPlaylist();
+    </script>
+</body>
+</html>

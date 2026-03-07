@@ -1,0 +1,8 @@
+jens_hub
+downloads/
+*.o
+.DS_Store
+downloads/
+downloads/
+.env
+radio.conf
