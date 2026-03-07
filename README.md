@@ -1,23 +1,23 @@
-# Jens Admin Hub - C++ Video & Audio Downloader
+# 🎵 Dollishub - All-in-One Radio & Converter
 
-Ein extrem schneller und leichtgewichtiger Web-Hub auf C++ Basis (Crow Framework), um YouTube-Videos in verschiedene Audio- und Videoformate zu konvertieren. Optimiert für den Betrieb in einem LXC-Container unter Proxmox.
+Ein leistungsstarker C++ Web-Hub für Musik-Streaming, YouTube-Downloads und System-Monitoring.
 
-## Features
-- **Live Hardware-Monitoring:** Echtzeit-Anzeige von CPU-Last, RAM-Verbrauch und freiem Festplattenspeicher (GB).
-- **Breiter Format-Support:** - **Audio:** MP3, WAV, FLAC, M4A, OPUS.
-  - **Video:** MP4, MKV.
-- **Integriertes Dateimanagement:** Liste aller Downloads mit Funktionen zum lokalen Speichern und Löschen direkt vom Server.
-- **Performance:** Geschrieben in C++17 mit dem Crow Framework für minimale Systemlast.
+## 🚀 Features
+- **Live Radio:** Streamt Musik direkt von deinem Server über Icecast2.
+- **YouTube Converter:** Einfaches Herunterladen und Konvertieren von Videos in die Playlist.
+- **Skip-Funktion:** Springe sofort zum nächsten Song (Server-seitiger Signal-Handler).
+- **System Monitor:** Echtzeit-Anzeige von CPU-Last, RAM-Verbrauch und HDD-Speicherplatz.
+- **HTTPS Ready:** Optimiert für den Betrieb hinter einem Nginx-Reverse-Proxy.
 
-## Voraussetzungen
-Stelle sicher, dass die folgenden Pakete auf deinem Linux-System installiert sind:
-- `g++` (mit C++17 Support)
-- `yt-dlp` (für den Download und die Konvertierung)
-- `ffmpeg` (als Backend für yt-dlp)
-- `libpthread` (für Multithreading)
+## 🛠 Technik & Voraussetzungen
+- **Sprache:** C++ (mit `httplib.h`)
+- **Streaming:** FFmpeg & Icecast2
+- **Web:** HTML5, CSS3, JavaScript (Vanilla)
+- **Proxy:** Nginx mit SSL-Zertifikat
 
-## Installation & Kompilierung
-
-1. **Abhängigkeiten installieren:**
+## 📦 Installation & Start
+1. Repository klonen.
+2. Eine `radio.conf` mit deinen Icecast-Daten erstellen (siehe `.gitignore`).
+3. Den C++ Hub kompilieren:
    ```bash
-   sudo apt update && sudo apt install g++ yt-dlp ffmpeg -y
+   g++ main.cpp -o jenshub -lpthread
